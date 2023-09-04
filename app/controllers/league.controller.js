@@ -254,26 +254,10 @@ const getLeagueDetails = async (leagueId, display_week, new_league = false) => {
                 };
             }
 
-            const {
-                type,
-                best_ball,
-                trade_deadline,
-                waiver_day_of_week,
-                daily_waivers_hour,
-                league_average_match,
-                playoff_week_start,
-                disable_trades
-            } = league.data.settings || {}
+
 
             const settings = {
-                type,
-                best_ball,
-                trade_deadline,
-                waiver_day_of_week,
-                daily_waivers_hour,
-                league_average_match,
-                playoff_week_start,
-                disable_trades,
+                ...league.data.settings,
                 status: league.data.status
             }
             const users_w_rosters = users.data
