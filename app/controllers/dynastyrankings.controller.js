@@ -70,6 +70,7 @@ exports.updateDaily = async (app) => {
         try {
             ktc = await axios.post('https://keeptradecut.com/dynasty-rankings/histories')
         } catch (err) {
+
             console.log(err)
         }
 
@@ -103,7 +104,7 @@ exports.updateDaily = async (app) => {
 
         const daily_values = {}
 
-        ktc.data.forEach(ktc_player => {
+        ktc?.data?.forEach(ktc_player => {
             const sleeper_id = matchPlayer(ktc_player, stateAllPlayers)
 
             const oneqb_dynasty_fc = fc_oneqb_dynasty.data
