@@ -81,12 +81,12 @@ exports.league = async (app) => {
 
         await League.bulkCreate(leagues_to_add_updated, {
             updateOnDuplicate: ["name", "avatar", "settings", "scoring_settings", "roster_positions",
-                "rosters", "drafts", ...Array.from(Array(18).keys()).map(key => `matchups_${key + 1}`), "updatedAt"]
+                "rosters", "drafts", "updatedAt"]
         });
 
         await League.bulkCreate(leagues_to_update_updated, {
-            updateOnDuplicate: ["name", "avatar", "settings", "scoring_settings", "roster_positions",
-                "rosters", "drafts", `matchups_${state.display_week}`, "updatedAt"]
+            updateOnDuplicate: ["name", "avatar", "scoring_settings", "roster_positions",
+                "rosters", "drafts", "updatedAt"]
         });
 
         await db.sequelize.model('userLeagues').bulkCreate(userLeagueData, { ignoreDuplicates: true });
@@ -185,21 +185,7 @@ const getLeagueDetails = async (leagueId, display_week, new_league = false) => {
             console.log(`League ${leagueId} has been deleted...`)
         } else {
 
-            let matchups = {};
 
-            if (league.data.status === 'in_season') {
-
-                await Promise.all(Array.from(Array(18 - display_week).keys())
-                    .map(async week => {
-                        if (week + 1 <= league.data.settings.playoff_week_start) {
-                            const matchup_prev = await axios.get(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${week + 1}`)
-
-                            matchups[`matchups_${week + 1}`] = matchup_prev.data || []
-                        } else {
-                            matchups[`matchups_${week + 1}`] = []
-                        };
-                    }))
-            }
 
 
             const draft_picks = (
@@ -280,7 +266,6 @@ const getLeagueDetails = async (leagueId, display_week, new_league = false) => {
                 roster_positions: league.data.roster_positions,
                 rosters: rosters_username,
                 drafts: drafts_array,
-                ...matchups,
                 updatedAt: Date.now(),
                 users: users_w_rosters
             }
