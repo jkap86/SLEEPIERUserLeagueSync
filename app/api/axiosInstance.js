@@ -3,18 +3,26 @@ const axios = require('axios');
 
 const axiosInstance = axios.create({
     headers: {
-        'content-type': 'application/json'
+        'content-type': 'application/json',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
     },
     httpsAgent: new https.Agent({ keepAlive: true }),
-    timeout: 3000
+    timeout: 4000
 });
 
-const axiosRetry = require('axios-retry');
+const axiosRetry = require('axios-retry').default;
 
-axiosRetry(axiosInstance, {
-    retries: 5, retryDelay: (retryNumber) => {
-        return 2000 + (retryNumber * 1000)
-    }
-})
+try {
+    axiosRetry(axiosInstance, {
+        retries: 3,
+        retryCondition: () => true,
+        retryDelay: (retryNumber) => {
+            return 500 + (retryNumber * 500)
+        }
+    })
+} catch (error) {
+    console.log(error)
+}
 
 module.exports = axiosInstance;
