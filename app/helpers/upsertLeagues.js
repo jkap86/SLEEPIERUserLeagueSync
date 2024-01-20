@@ -10,6 +10,7 @@ const {
 const db = require("../models");
 const User = db.users;
 const League = db.leagues;
+const Draft = db.drafts;
 
 const splitLeagues = async (leagues, cutoff) => {
   const leagues_db = await League.findAll({
@@ -236,6 +237,7 @@ const updateLeagues = async (league_ids) => {
 
   const user_data = [];
   const user_league_data = [];
+  const draft_data = [];
 
   leagues_to_add.forEach((league) => {
     league.rosters
@@ -247,7 +249,7 @@ const updateLeagues = async (league_ids) => {
               user_id: roster.user_id,
               username: roster.username,
               avatar: roster.avatar,
-              type: "LM",
+              type: "",
             });
           }
 
@@ -262,7 +264,7 @@ const updateLeagues = async (league_ids) => {
                 user_id: co.user_id,
                 username: co.username,
                 avatar: co.avatar,
-                type: "LM",
+                type: "",
               });
             }
 
@@ -273,6 +275,19 @@ const updateLeagues = async (league_ids) => {
           });
         }
       });
+
+    league.drafts.forEach((draft) => {
+      const { draft_id, type, status, start_time, last_picked } = draft;
+
+      draft_data.push({
+        draft_id,
+        type,
+        status,
+        start_time,
+        last_picked,
+        leagueLeagueId: league.league_id,
+      });
+    });
   });
 
   await User.bulkCreate(user_data, { ignoreDuplicates: true });
@@ -295,6 +310,10 @@ const updateLeagues = async (league_ids) => {
   await db.sequelize
     .model("userLeagues")
     .bulkCreate(user_league_data, { ignoreDuplicates: true });
+
+  await Draft.bulkCreate(draft_data, {
+    updateOnDuplicate: ["type", "status"],
+  });
 
   return leagues_to_add;
 };
