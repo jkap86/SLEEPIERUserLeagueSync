@@ -70,7 +70,7 @@ const getAllPlayers = async () => {
 const getMain = async (app) => {
   await getState(app);
 
-  if (process.env.NODE_ENV !== "production") {
+  if (process.env.NODE_ENV === "production") {
     await getAllPlayers();
   }
 };
