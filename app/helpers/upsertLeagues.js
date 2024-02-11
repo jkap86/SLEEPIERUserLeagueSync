@@ -344,6 +344,7 @@ const updateLeagues = async (league_ids) => {
     updateOnDuplicate: [
       "type",
       "status",
+      "start_time",
       "last_picked",
       "league_type",
       "settings",
