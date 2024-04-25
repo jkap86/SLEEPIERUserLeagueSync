@@ -27,7 +27,7 @@ exports.user = async (app) => {
       where: {
         [Op.and]: [
           {
-            type: ["LM", "S"],
+            type: ["LM", "S", "RS"],
           },
           {
             [Op.or]: [
@@ -54,10 +54,11 @@ exports.user = async (app) => {
       new_users_to_update.map((user) => {
         return {
           user_id: user.user_id,
+          type: user.type === "RS" ? "S" : user.type,
           updatedAt: new Date(),
         };
       }),
-      { updateOnDuplicate: ["updatedAt"] }
+      { updateOnDuplicate: ["type", "updatedAt"] }
     );
 
     // Get League_ids to update
