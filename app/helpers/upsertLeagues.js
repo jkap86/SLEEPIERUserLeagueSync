@@ -361,17 +361,21 @@ const updateLeagues = async (league_ids) => {
   });
 
   for await (const draft_delete of drafts_delete) {
-    await Draft.destroy({
+    const numDraftsDeleted = await Draft.destroy({
       where: {
         draft_id: draft_delete.draft_id,
       },
     });
 
-    await DraftPick.destroy({
+    console.log(`${numDraftsDeleted} Drafts Deleted...`);
+
+    const numDraftPicksDeleted = await DraftPick.destroy({
       where: {
         draftDraftId: draft_delete.draft_id,
       },
     });
+
+    console.log(`${numDraftPicksDeleted} Draft Picks Deleted...`);
   }
 
   return leagues_to_add;
