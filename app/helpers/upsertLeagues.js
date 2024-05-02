@@ -11,6 +11,7 @@ const db = require("../models");
 const User = db.users;
 const League = db.leagues;
 const Draft = db.drafts;
+const DraftPick = db.draftpicks;
 
 const splitLeagues = async (leagues, cutoff) => {
   const leagues_db = await League.findAll({
@@ -358,6 +359,20 @@ const updateLeagues = async (league_ids) => {
       "draft_order",
     ],
   });
+
+  for await (const draft_delete of drafts_delete) {
+    await Draft.destroy({
+      where: {
+        draft_id: draft_delete.draft_id,
+      },
+    });
+
+    await DraftPick.destroy({
+      where: {
+        draftDraftId: draft_delete.draft_id,
+      },
+    });
+  }
 
   return leagues_to_add;
 };
