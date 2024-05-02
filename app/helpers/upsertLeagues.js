@@ -239,6 +239,8 @@ const updateLeagues = async (league_ids) => {
   const user_league_data = [];
   const draft_data = [];
 
+  const drafts_delete = [];
+
   leagues_to_add.forEach((league) => {
     league.rosters
       .filter((roster) => roster.players?.length > 0)
@@ -303,7 +305,10 @@ const updateLeagues = async (league_ids) => {
             ? "R"
             : false;
 
-        if (league_type) {
+        if (
+          league_type &&
+          draft.settings.rounds > league.settings.draft_rounds
+        ) {
           draft_data.push({
             draft_id,
             type,
@@ -315,6 +320,8 @@ const updateLeagues = async (league_ids) => {
             draft_order,
             leagueLeagueId: league.league_id,
           });
+        } else {
+          drafts_delete.push({ draft_id });
         }
       });
   });
