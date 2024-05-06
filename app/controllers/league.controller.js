@@ -23,6 +23,8 @@ exports.league = async (app) => {
   try {
     updated_leagues = await updateLeagues(league_ids);
 
+    console.log({ updated_leagues: updated_leagues.length });
+
     app.set(
       "league_ids_queue",
       league_ids_queue.filter(

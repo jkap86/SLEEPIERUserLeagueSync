@@ -187,52 +187,58 @@ const getLeagueDraftPicks = ({ league, rosters, drafts, traded_picks }) => {
 const updateLeagues = async (league_ids) => {
   const leagues_to_add = await Promise.all(
     league_ids.map(async (league_id) => {
-      const league = await fetchLeague(league_id);
-      const rosters = await fetchLeagueRosters(league_id);
-      const users = await fetchLeagueUsers(league_id);
+      try {
+        const league = await fetchLeague(league_id);
 
-      const updated_rosters = updateLeagueRostersUsers(rosters, users);
+        const rosters = await fetchLeagueRosters(league_id);
+        const users = await fetchLeagueUsers(league_id);
 
-      const drafts = await fetchLeagueDrafts(league_id);
+        const updated_rosters = updateLeagueRostersUsers(rosters, users);
 
-      let draft_picks;
+        const drafts = await fetchLeagueDrafts(league_id);
 
-      if (
-        league.settings.type === 2 &&
-        rosters.find((r) => r.players?.length > 0)
-      ) {
-        const traded_picks = await fetchLeagueTradedPicks(league.league_id);
+        let draft_picks;
 
-        draft_picks = getLeagueDraftPicks({
-          league,
-          rosters: updated_rosters,
-          drafts,
-          traded_picks,
+        if (
+          league.settings.type === 2 &&
+          rosters.find((r) => r.players?.length > 0)
+        ) {
+          const traded_picks = await fetchLeagueTradedPicks(league.league_id);
+
+          draft_picks = getLeagueDraftPicks({
+            league,
+            rosters: updated_rosters,
+            drafts,
+            traded_picks,
+          });
+        }
+
+        const updated_rosters_draft_picks = updated_rosters.map((roster) => {
+          return {
+            ...roster,
+            draft_picks: draft_picks?.[roster.roster_id] || [],
+          };
         });
-      }
 
-      const updated_rosters_draft_picks = updated_rosters.map((roster) => {
         return {
-          ...roster,
-          draft_picks: draft_picks?.[roster.roster_id] || [],
+          league_id: league.league_id,
+          name: league.name,
+          avatar: league.avatar,
+          season: league.season,
+          settings: {
+            ...league.settings,
+            status: league.status,
+          },
+          scoring_settings: league.scoring_settings,
+          roster_positions: league.roster_positions,
+          rosters: updated_rosters_draft_picks,
+          drafts: drafts,
+          updatedAt: new Date(),
         };
-      });
-
-      return {
-        league_id: league.league_id,
-        name: league.name,
-        avatar: league.avatar,
-        season: league.season,
-        settings: {
-          ...league.settings,
-          status: league.status,
-        },
-        scoring_settings: league.scoring_settings,
-        roster_positions: league.roster_positions,
-        rosters: updated_rosters_draft_picks,
-        drafts: drafts,
-        updatedAt: new Date(),
-      };
+      } catch (err) {
+        console.log(err.message);
+        return {};
+      }
     })
   );
 
@@ -242,90 +248,92 @@ const updateLeagues = async (league_ids) => {
 
   const drafts_delete = [];
 
-  leagues_to_add.forEach((league) => {
-    league.rosters
-      .filter((roster) => roster.players?.length > 0)
-      .forEach((roster) => {
-        if (parseInt(roster.user_id) > 0) {
-          if (!user_data.find((u) => u.user_id === roster.user_id)) {
-            user_data.push({
-              user_id: roster.user_id,
-              username: roster.username,
-              avatar: roster.avatar,
-              type: "",
-            });
-          }
-
-          user_league_data.push({
-            userUserId: roster.user_id,
-            leagueLeagueId: league.league_id,
-          });
-
-          roster.co_owners?.forEach((co) => {
-            if (!user_data.find((u) => u.user_id === co.user_id)) {
+  leagues_to_add
+    .filter((league) => league.league_id)
+    .forEach((league) => {
+      league.rosters
+        .filter((roster) => roster.players?.length > 0)
+        .forEach((roster) => {
+          if (parseInt(roster.user_id) > 0) {
+            if (!user_data.find((u) => u.user_id === roster.user_id)) {
               user_data.push({
-                user_id: co.user_id,
-                username: co.username,
-                avatar: co.avatar,
+                user_id: roster.user_id,
+                username: roster.username,
+                avatar: roster.avatar,
                 type: "",
               });
             }
 
             user_league_data.push({
-              userUserId: co.user_id,
+              userUserId: roster.user_id,
               leagueLeagueId: league.league_id,
             });
-          });
-        }
-      });
 
-    league.drafts
-      .filter(
-        (draft) =>
-          !draft.settings.slots_dl &&
-          !draft.settings.slots_lb &&
-          !draft.settings.slots_db &&
-          !draft.settings.slots_idp_flex &&
-          !draft.settings.slots_def
-      )
-      .forEach((draft) => {
-        const {
-          draft_id,
-          type,
-          status,
-          start_time,
-          last_picked,
-          settings,
-          draft_order,
-        } = draft;
+            roster.co_owners?.forEach((co) => {
+              if (!user_data.find((u) => u.user_id === co.user_id)) {
+                user_data.push({
+                  user_id: co.user_id,
+                  username: co.username,
+                  avatar: co.avatar,
+                  type: "",
+                });
+              }
 
-        const league_type =
-          league.settings.type === 2
-            ? "D"
-            : league.settings.type === 0
-            ? "R"
-            : false;
+              user_league_data.push({
+                userUserId: co.user_id,
+                leagueLeagueId: league.league_id,
+              });
+            });
+          }
+        });
 
-        if (
-          league_type &&
-          draft.settings.rounds > league.settings.draft_rounds
-        ) {
-          draft_data.push({
+      league.drafts
+        .filter(
+          (draft) =>
+            !draft.settings.slots_dl &&
+            !draft.settings.slots_lb &&
+            !draft.settings.slots_db &&
+            !draft.settings.slots_idp_flex &&
+            !draft.settings.slots_def
+        )
+        .forEach((draft) => {
+          const {
             draft_id,
             type,
             status,
             start_time,
             last_picked,
-            league_type,
             settings,
             draft_order,
-            leagueLeagueId: league.league_id,
-          });
-        } else {
-          drafts_delete.push({ draft_id });
-        }
-      });
-  });
+          } = draft;
+
+          const league_type =
+            league.settings.type === 2
+              ? "D"
+              : league.settings.type === 0
+              ? "R"
+              : false;
+
+          if (
+            league_type &&
+            draft.settings.rounds > league.settings.draft_rounds
+          ) {
+            draft_data.push({
+              draft_id,
+              type,
+              status,
+              start_time,
+              last_picked,
+              league_type,
+              settings,
+              draft_order,
+              leagueLeagueId: league.league_id,
+            });
+          } else {
+            drafts_delete.push({ draft_id });
+          }
+        });
+    });
 
   await User.bulkCreate(user_data, { ignoreDuplicates: true });
 
