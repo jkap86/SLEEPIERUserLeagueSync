@@ -18,7 +18,7 @@ module.exports = (app) => {
         `${key} ${Math.round((used[key] / 1024 / 1024) * 100) / 100} MB`
       );
     }
-  }, 60 * 1000);
+  }, 30 * 1000);
 
   setTimeout(async () => {
     //await user.playershares(app);
