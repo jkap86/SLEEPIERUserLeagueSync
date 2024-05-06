@@ -367,7 +367,9 @@ const updateLeagues = async (league_ids) => {
       },
     });
 
-    console.log(`${numDraftsDeleted} Drafts Deleted...`);
+    if (numDraftsDeleted > 0) {
+      console.log(`${numDraftsDeleted} Drafts Deleted...`);
+    }
 
     const numDraftPicksDeleted = await DraftPick.destroy({
       where: {
@@ -375,7 +377,9 @@ const updateLeagues = async (league_ids) => {
       },
     });
 
-    console.log(`${numDraftPicksDeleted} Draft Picks Deleted...`);
+    if (numDraftPicksDeleted > 0) {
+      console.log(`${numDraftPicksDeleted} Draft Picks Deleted...`);
+    }
   }
 
   return leagues_to_add;
