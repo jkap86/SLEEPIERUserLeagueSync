@@ -236,7 +236,15 @@ const updateLeagues = async (league_ids) => {
           updatedAt: new Date(),
         };
       } catch (err) {
-        console.log(err.message);
+        console.log(err);
+        /*
+        console.log(`Deleting LEAGUE ${league_id}!!!`);
+        await League.destroy({
+          where: {
+            league_id: league_id,
+          },
+        });
+        */
         return {};
       }
     })
