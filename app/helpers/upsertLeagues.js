@@ -238,13 +238,15 @@ const updateLeagues = async (league_ids) => {
       } catch (err) {
         console.log(err.message);
 
-        if (err.response.status === 404) {
+        if (err.response?.status === 404) {
           console.log(`Deleting LEAGUE ${league_id}!!!`);
           await League.destroy({
             where: {
               league_id: league_id,
             },
           });
+        } else {
+          console.log(`ERROR BUT NOT deleting ${league_id}`);
         }
 
         return {};
