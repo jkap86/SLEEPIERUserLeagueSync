@@ -8,7 +8,7 @@ const axios = require("../api/axiosInstance");
 const { updateLeagues } = require("../helpers/upsertLeagues");
 
 exports.league = async (app) => {
-  const total_batch_size = 50;
+  const total_batch_size = 25;
 
   console.log("Beginning League Sync...");
 
