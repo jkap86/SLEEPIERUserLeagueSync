@@ -360,6 +360,7 @@ const updateLeagues = async (league_ids) => {
     ],
   });
 
+  drafts_delete?.length > 0 && console.log(drafts_delete[0]);
   console.log((drafts_delete?.length || 0) + " drafts to loop though");
 
   for await (const draft_delete of drafts_delete) {
