@@ -12,6 +12,8 @@ const User = db.users;
 const League = db.leagues;
 const Draft = db.drafts;
 const DraftPick = db.draftpicks;
+const sequelize = db.sequelize;
+const Op = db.Sequelize.Op;
 
 const splitLeagues = async (leagues, cutoff) => {
   const leagues_db = await League.findAll({
@@ -380,7 +382,22 @@ const updateLeagues = async (league_ids) => {
     ],
   });
 
-  drafts_delete?.length > 0 && console.log(drafts_delete[0]);
+  const deleteRookieDrafts = async () => {
+    const drafts_to_delete = await Draft.destroy({
+      where: {
+        settings: {
+          rounds: {
+            [Op.lte]: 10,
+          },
+        },
+      },
+    });
+
+    console.log({ drafts_to_delete });
+  };
+
+  await deleteRookieDrafts();
+
   console.log((drafts_delete?.length || 0) + " drafts to loop though");
 
   for await (const draft_delete of drafts_delete) {
@@ -390,7 +407,9 @@ const updateLeagues = async (league_ids) => {
       },
     });
 
-    console.log(`${numDraftsDeleted} Drafts Deleted...`);
+    if (numDraftsDeleted > 0) {
+      console.log(`${numDraftsDeleted} Drafts Deleted...`);
+    }
 
     const numDraftPicksDeleted = await DraftPick.destroy({
       where: {
@@ -398,7 +417,9 @@ const updateLeagues = async (league_ids) => {
       },
     });
 
-    console.log(`${numDraftPicksDeleted} Draft Picks Deleted...`);
+    if (numDraftPicksDeleted > 0) {
+      console.log(`${numDraftPicksDeleted} Draft Picks Deleted...`);
+    }
   }
 
   return leagues_to_add;
