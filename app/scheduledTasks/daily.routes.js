@@ -1,5 +1,6 @@
 "use strict";
 
+const https = require("https");
 const { getMain } = require("../helpers/dailyUpdateHelpers");
 
 module.exports = async (app) => {
@@ -18,4 +19,14 @@ module.exports = async (app) => {
       console.log("Daily update complete...");
     }, 24 * 60 * 60 * 1 * 1000);
   }, delay);
+
+  setInterval(() => {
+    https
+      .get("https://thelabbackground-08ce2d0051a2.herokuapp.com/", (res) => {
+        console.log(`Ping sucessful... CODE:${res.statusCode}`);
+      })
+      .on("error", (e) => {
+        console.log(`ERROR Pinging!!! CODE:${e.statusCode}`);
+      });
+  }, 29 * 60 * 1000);
 };
