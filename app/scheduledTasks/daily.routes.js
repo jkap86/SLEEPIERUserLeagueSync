@@ -23,10 +23,18 @@ module.exports = async (app) => {
   setInterval(() => {
     https
       .get("https://thelabbackground-08ce2d0051a2.herokuapp.com/", (res) => {
-        console.log(`Ping sucessful... CODE:${res.statusCode}`);
+        console.log(`Ping BACKGROUND sucessful... CODE:${res.statusCode}`);
       })
       .on("error", (e) => {
-        console.log(`ERROR Pinging!!! CODE:${e.statusCode}`);
+        console.log(`ERROR Pinging BACKGROUND!!! CODE:${e.statusCode}`);
+      });
+
+    https
+      .get("https://thelabdev-b1caa03bf550.herokuapp.com/", (res) => {
+        console.log(`Ping CLIENT sucessful... CODE:${res.statusCode}`);
+      })
+      .on("error", (e) => {
+        console.log(`ERROR Pinging CLIENT!!! CODE:${e.statusCode}`);
       });
   }, 14 * 60 * 1000);
 };
