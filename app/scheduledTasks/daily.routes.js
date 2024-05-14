@@ -28,5 +28,5 @@ module.exports = async (app) => {
       .on("error", (e) => {
         console.log(`ERROR Pinging!!! CODE:${e.statusCode}`);
       });
-  }, 29 * 60 * 1000);
+  }, 14 * 60 * 1000);
 };
