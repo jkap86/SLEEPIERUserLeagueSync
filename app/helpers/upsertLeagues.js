@@ -396,31 +396,7 @@ const updateLeagues = async (league_ids) => {
     console.log({ drafts_to_delete });
   };
 
-  await deleteRookieDrafts();
-
   console.log((drafts_delete?.length || 0) + " drafts to loop though");
-
-  for await (const draft_delete of drafts_delete) {
-    const numDraftsDeleted = await Draft.destroy({
-      where: {
-        draft_id: draft_delete.draft_id,
-      },
-    });
-
-    if (numDraftsDeleted > 0) {
-      console.log(`${numDraftsDeleted} Drafts Deleted...`);
-    }
-
-    const numDraftPicksDeleted = await DraftPick.destroy({
-      where: {
-        draftDraftId: draft_delete.draft_id,
-      },
-    });
-
-    if (numDraftPicksDeleted > 0) {
-      console.log(`${numDraftPicksDeleted} Draft Picks Deleted...`);
-    }
-  }
 
   return leagues_to_add;
 };
